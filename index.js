@@ -40,8 +40,7 @@ let db = new sqlite3.Database('chinook.db', sqlite3.OPEN_READWRITE, (err) => {
 it is kind of like an import statement.*/
 const express = require('express');
  
-const Datastore = require('nedb');
-const database = new Datastore('database.db');
+
 
 
 /* 2 this creates a web application called app.  When express 
@@ -55,7 +54,7 @@ const app = express();
 for requests.  It takes in a port number as a parameter, and also takes
 in a call back function as the second parameter */
 
-const port =process.env.PORT || 3000
+const port = process.env.PORT || 3000
 app.listen(port, () => {
   console.log(`Starting server at ${port}`);
 });
@@ -93,7 +92,7 @@ everything that contained inside the POST request from the client.
 The response is a variable that I can use to send things back to the client*/
 
 
-database.loadDatabase();
+
 /*database.insert({
     name: 'john'
 });*/
@@ -112,7 +111,7 @@ app.post('/api', (request, response) => {
     console.log('ip adress', request.body.ip);
     console.log(request.body);
     const data = request.body;
-    database.insert(request.body);
+    
     
 //***********connecting to and modifying the SQLite database*************************
 
@@ -229,7 +228,7 @@ app.post('/apiBattery', (request, response) => {
     /*const clientBatLvl = request.body.batLvl;
     const clientIsCharging = request.body.isCharging;*/
     console.log(request.body);
-    database.insert(request.body);
+    
     //the below code is the response sending data back to the client 
     // so that the client knows that the information has been successfully
     // received by the server.
@@ -244,13 +243,7 @@ app.post('/apiBattery', (request, response) => {
 
 
 app.get('/api', (request, response) => {
-    database.find({}, (err, data) => {
-        if (err) {
-            response.end();
-            return;
-        }
-        //response.json(data);
-    });
+    
 
 
     const query = 'SELECT * FROM locationData';
