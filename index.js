@@ -54,7 +54,11 @@ const app = express();
 /* 3 the .listen function allows the web application to start listening
 for requests.  It takes in a port number as a parameter, and also takes
 in a call back function as the second parameter */
-app.listen(3000, () => console.log('listening at 3000'));
+
+const port =process.env.PORT || 3000
+app.listen(port, () => {
+  console.log(`Starting server at ${port}`);
+});
 
 /* 4 the .use() function allows files to be served to the web application.
 In this case, I am using express to help serve the files.  Any file that 
