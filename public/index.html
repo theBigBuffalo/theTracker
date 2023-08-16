@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!--Below is a link to the leaflet CSS sheet-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+   crossorigin=""/>
+   <!--Below is a link to the leaflet JavaScript file-->
+   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+   crossorigin=""></script>
+
+</head>
+<body>
+    
+    
+    
+    
+    
+    <h1>This is the App</h1>
+    <a href = 'otherTestPage.html'>otherTestPage.html</a>
+    <a href = 'all.html'>all.html</a>
+    <p>latitude: <span id="latitude"></span>&deg;</p>
+    <p>longitude: <span id="longitude"></span>&deg;</p>
+    <p>accuracy: <span id="accuracy"></span> meters</p>
+    <p>battery level: <span id="batteryLevel"></span> %</p>
+    <p>is charging: <span id="isCharging"></span></p>
+
+    <p>updatingInfo: <span id="updatingInfo"></span></p>
+    
+
+    <button onclick="getTheData()">click here</button>
+    <button onclick="getBatteryInfo()">battery</button>
+    <button onclick="getBoth()">battery</button>
+    
+
+    
+    <div id="map"></div>
+    
+    <style>
+        #map{
+            height: 500px;
+            width: 800px;
+           
+        }
+    </style>
+ 
+    <script>
+        
+        //***** leaflet map code start*********************
+        const map = L.map('map').setView([0, 0], 1);
+        
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            minZoom: 2,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        const marker = L.marker([0, 0]).addTo(map);
+        //***** leaflet map code end***********************
+
+
+
+        const bundle = {};
+        
+
+        async function getTheData(){
+        
+        if ("geolocation" in navigator) {
+
+            console.log('gelolocation is available');
+            
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                console.log(position.coords);
+                /*below are the variables that store the lat and lon of the client*/
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                const acc = position.coords.accuracy;
+                bundle.lat = lat;
+                bundle.lon = lon;
+                bundle.acc = acc;
+                /*Below we are assigning the values that are stored in the 
+                variables above to the html items*/
+                document.getElementById('latitude').textContent = lat;
+                document.getElementById('longitude').textContent = lon;
+                document.getElementById('accuracy').textContent = acc;
+
+
+                /*this is the code that sends the POST request to server.
+                The javascript object called data was created which contains
+                the clients lat and lon.  The js object called options was
+                created becaue we need to let the computer know that we 
+                want to use the method "POST" .  The headers tells the request,
+                that the information will be in the form of JSON*/
+                
+                /*
+                const data = {lat, lon, acc};
+                const options = {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    //this converts the data from the data object into a string
+                    body: JSON.stringify(data),
+                };
+                */
+
+                /*the fetch function sets up an endpoint for the client to send 
+                the data to. This endpoint is '/api'. The second parameter
+                contains the JS object 'options', which specifies what will be 
+                done when fetch is executed.  Finally after the data is sent
+                to the server, the server sends back a response which is handled
+                by the .then() function.  The .then() function runs the response
+                function which console.logs the response variable.  I removed
+                the .then() function, instead, I made the position function
+                above, an async function, which means that I can make the 
+                variables below have the key word 'await'*/
+                
+                /*
+                const response = await fetch('/api', options);
+                const json = await response.json();
+                console.log(json);
+                */
+
+                //****this is where the map code was
+               
+                
+                marker.setLatLng([position.coords.latitude, position.coords.longitude]);
+                console.log(position);
+                
+               
+            });
+       
+
+        } else {
+            console.log('geolocation aint available');
+        }
+
+        }//end getTheData() method
+
+
+        async function getBatteryInfo() {
+        
+            if ("getBattery" in navigator)
+            {
+            console.log('battery is available');
+            navigator.getBattery().then(async (battery) => {
+                console.log(battery);
+                const batLvl = (battery.level)*100;
+                const isCharging = battery.charging;
+                bundle.batLvl = batLvl;
+                bundle.isCharging = isCharging;
+                document.getElementById('batteryLevel').textContent = batLvl;
+                document.getElementById('isCharging').textContent = isCharging;
+                
+                /*const batteryData = {batLvl, isCharging};
+                const options = {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    //this converts the data from the data object into a string
+                    body: JSON.stringify(batteryData),
+                };
+
+                const response = await fetch('/apiBattery', options);
+                const json = await response.json();
+                console.log(json);*/
+
+
+            });
+            }
+            else{
+                console.log('battery not available');
+                document.getElementById('batteryLevel').textContent = 'null';
+                document.getElementById('isCharging').textContent = 'null';
+
+            }
+
+        }// end getBatteryInfo
+
+
+
+        async function getTime(){
+            const currentTimeStamp = new Date();
+            const normalTimeFormat = currentTimeStamp.toLocaleString();
+            bundle.time = normalTimeFormat;
+            console.log('time is below:');
+            console.log(normalTimeFormat);
+        }
+       
+
+
+
+
+
+        async function getBoth(){
+            getTheData();
+            getBatteryInfo();
+            getTime();
+
+            
+            const ipUrl = "https://api.ipify.org/?format=json"
+            const userIP = await fetch(ipUrl).then(results => results.json())
+            .then(ipData => {
+                console.log(ipData.ip);
+                const ip = ipData.ip;
+                bundle.ip = ip;
+            });
+            
+
+            console.log(bundle);
+
+            //const data = {bundle};
+                const options = {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    //this converts the data from the data object into a string
+                    body: JSON.stringify(bundle),
+                };
+
+                const response = await fetch('/api', options);
+                const json = await response.json();
+                console.log(json);
+
+        
+            }
+
+        setInterval(getBoth, 1000);
+
+
+
+
+        //***********************************
+
+        setInterval(getData, 5000);
+
+        async function getData(){
+            const response = await fetch('/api');
+            const data = await response.json();
+            const test = 5;
+            console.log('the response', data);
+            
+            
+            
+            for (item of data)
+            {
+                const root = document.createElement('div');
+                const ip = document.createElement('div');
+                const lat = document.createElement('div');
+                const lon = document.createElement('div');
+                const acc = document.createElement('div');
+                const batLvl = document.createElement('div');
+                const isCharging = document.createElement('div');
+                const time = document.createElement('div');
+                
+                ip.innerHTML = `ip: ${item.ipAdress}`;
+                lat.innerHTML = `lat: ${item.latitude}`;
+                lon.innerHTML =  `lon: ${item.longitude}`;
+                acc.innerHTML =  `acc: ${item.accuracy}`;
+                batLvl.innerHTML =  `batLvl: ${item.batteryLevel}`;
+                isCharging.innerHTML =  `isCharging: ${item.isCharging}`;
+                time.innerHTML =  `time: ${item.time}`;
+                
+                root.append(ip, lat, lon, acc, batLvl, isCharging, time);
+                document.body.append(root);
+            }
+            console.log(data);
+            console.log('isitworking');
+            
+        }
+
+
+
+        //**********************
+        // this is the password protection
+        var correctPassword = "123456"; // Replace with your actual password
+
+        function checkPassword() {
+            var enteredPassword = prompt("Please enter the password:");
+
+            if (enteredPassword === correctPassword) {
+                //alert("Welcome to the protected content!");
+                // Display your protected content here
+            } else {
+                alert("Incorrect password. Please try again.");
+                checkPassword(); // Retry password input
+            }
+        }
+
+        checkPassword();
+        
+
+
+
+    </script>
+
+
+</body>
+</html>

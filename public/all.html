@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <a href = 'index.html'>index.html</a>
+    <a href = 'otherTestPage.html'>otherTestPage.html</a>
+    <div>
+
+    </div>
+
+    <script>
+        
+        /*getData();
+        async function getData(){
+            const response = await fetch('/api');
+            const data = await response.json();
+            for (item of data)
+            {
+                const root = document.createElement('div');
+                const lat = document.createElement('div');
+                const lon = document.createElement('div');
+                const ip = document.createElement('div');
+                lat.textContent = `lat: ${item.lat}`;
+                lon.textContent =  `lon: ${item.lon}`;
+                ip.textContent = `ip: ${item.ip}`;
+                root.append(lat, lon, ip);
+                document.body.append(root);
+            }
+            console.log(data);
+        }*/
+
+        
+
+
+        //getData();
+        
+        setInterval(getData, 5000);
+
+async function getData(){
+    const response = await fetch('/api');
+    const data = await response.json();
+    const test = 5;
+    console.log('the response', data);
+    
+    
+    
+    for (item of data)
+    {
+        const root = document.createElement('div');
+        const ip = document.createElement('div');
+        const lat = document.createElement('div');
+        const lon = document.createElement('div');
+        const acc = document.createElement('div');
+        const batLvl = document.createElement('div');
+        const isCharging = document.createElement('div');
+        const time = document.createElement('div');
+        
+        ip.innerHTML = `ip: ${item.ipAdress}`;
+        lat.innerHTML = `lat: ${item.latitude}`;
+        lon.innerHTML =  `lon: ${item.longitude}`;
+        acc.innerHTML =  `acc: ${item.accuracy}`;
+        batLvl.innerHTML =  `batLvl: ${item.batteryLevel}`;
+        isCharging.innerHTML =  `isCharging: ${item.isCharging}`;
+        time.innerHTML =  `time: ${item.time}`;
+        
+        root.append(ip, lat, lon, acc, batLvl, isCharging, time);
+        document.body.append(root);
+    }
+    console.log(data);
+    console.log('isitworking');
+    
+}
+        
+        
+
+    </script>
+   
+</body>
+</html>
